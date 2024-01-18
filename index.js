@@ -27,7 +27,6 @@ mongoose.connect(process.env.DATABASE,{
 app.use(express.json({limit:"2mb"}));
 app.use(cors());
 app.set('trust proxy', 1);
-app.use(bodyParser.urlencoded({extended:true}));
 
 //routes
 readdirSync('./routes').map((r)=>
