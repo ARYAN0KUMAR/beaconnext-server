@@ -1,9 +1,8 @@
-const Student = require('../models/student');
 const jwt = require('jsonwebtoken');
 
-exports.authCheck = async (req, res, next) =>{
-    const authHeader = req.headers['authorization'];
-    if (!authHeader) {
+exports.authCheckStudent = async (req, res, next) =>{
+    const token = req.headers['authorization'];
+    if (!token) {
         return res.status(401).json({ error: 'Unauthorized - Missing Authorization header' });
       }
       jwt.verify(token, process.env.signingkey, (err, student) => {
@@ -11,7 +10,33 @@ exports.authCheck = async (req, res, next) =>{
           return res.status(403).json({ error: 'Forbidden - Invalid token' });
        }
        //teacher role remaining
-       req.student = student;
-       next();
+       if(student.role == "student"){
+        req.student = student;
+        next();
+       }else{
+        return res.status(403).json({ error: 'Forbidden - Unauthorized' });
+       }
+
     });
+};
+
+
+exports.authCheckTeacher = async (req, res, next) =>{
+  const token = req.headers['authorization'];
+  if (!token) {
+      return res.status(401).json({ error: 'Unauthorized - Missing Authorization header' });
+    }
+    jwt.verify(token, process.env.signingkey, (err, teacher) => {
+      if (err) {
+        return res.status(403).json({ error: 'Forbidden - Invalid token' });
+     }
+     //teacher role remaining
+     if(teacher.role == "teacher"){
+      req.teacher = teacher;
+      next();
+     }else{
+      return res.status(403).json({ error: 'Forbidden - Unauthorized' });
+     }
+
+  });
 };
